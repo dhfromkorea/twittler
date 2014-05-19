@@ -1,27 +1,137 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
     <script src="jquery.js"></script>
     <script src="data_generator.js"></script>
-  </head>
-  <body>
+    <style>
+    body {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 14px;
+        line-height: 25px;
+        background-color: #361039;
+        color: #E2E0DE;
+        margin: 0;
+    }
+    header {
+        display: block;
+        background-color: #121325;
+        font-size: 24px;
+        height: 50px;
+        padding: 2%;
+        text-align: center;
+    }
+    section {
+        float: left;
+        width: 70%;
+        padding: 1%;
+        margin-right: 1%;
+    }
+    aside {
+        float: left;
+        width: 25%;
+        padding: 1%;
+        background-color: #5C255A;
+    }
+    .sticky {
+        position: relative;
+        top: 0;
+    }
+    footer {
+        display: block;
+        clear: both;
+        background-color: #121325;
+        font-size: 24px;
+        height: 300px;
+        padding: 2%;
+        text-align: center;
+    }
+    .img-med {
+        width:70%;
+        max-width:300px;
+    }
+    </style>
+</head>
+
+<body>
+    <header>This is a Twitter clone</header>
+
+    <section class="main-content">
+        <article>
+            <h1>Timeline</h1>
+            <div class="timeline"></div>
+        </article>
+    </section>
+
+    <aside class="sticky">
+        <img class="img-med" src="http://www.dhfromkorea.com/images/dh_profile.jpg" alt="profile img">
+        <h1 id="username">@username</h1>
+        <p id="profile_desc">description</p>
+    </aside>
+
     <script>
+    $(document).ready(function() {
+        var $timeline = $('.timeline');
+        $timeline.html('');
+        var index = 0;
+        setInterval(function() {
+            var new_tweets = new_block(index++);
+            display_tweets(new_tweets);
+        }, 10000);
 
-      $(document).ready(function(){
-        var $body = $('body');
-        $body.html('');
-
-        var index = streams.home.length - 1;
-        while(index >= 0){
-          var tweet = streams.home[index];
-          var $tweet = $('<div></div>');
-          $tweet.text('@' + tweet.user + ': ' + tweet.message);
-          $tweet.appendTo($body);
-          index -= 1;
+        function new_block(i) {
+            var j = (i + 1) * 10;
+            return streams.home.slice(j - 10, j);
         }
 
-      });
-
+        function display_tweets(array) {
+            console.log(array);
+            var index = array.length - 1;
+            while (index >= 0) {
+                var tweet = array[index];
+                var $tweet = $('<div></div>');
+                $tweet.text('@' + tweet.user + ': ' + tweet.message + 'this was created at:' + tweet.created_at);
+                $tweet.appendTo($timeline);
+                index -= 1;
+            }
+        }
+    });
     </script>
-  </body>
+    <script>
+    var stickySidebar = $('.sticky');
+
+    if (stickySidebar.length > 0) {
+        var stickyHeight = stickySidebar.height(),
+            sidebarTop = stickySidebar.offset().top;
+    }
+
+    // on scroll move the sidebar
+    $(window).scroll(function() {
+        if (stickySidebar.length > 0) {
+            var scrollTop = $(window).scrollTop();
+
+            if (sidebarTop < scrollTop) {
+                stickySidebar.css('top', scrollTop - sidebarTop);
+
+                // stop the sticky sidebar at the footer to avoid overlapping
+                var sidebarBottom = stickySidebar.offset().top + stickyHeight,
+                    stickyStop = $('.main-content').offset().top + $('.main-content').height();
+                if (stickyStop < sidebarBottom) {
+                    var stopPosition = $('.main-content').height() - stickyHeight;
+                    stickySidebar.css('top', stopPosition);
+                }
+            } else {
+                stickySidebar.css('top', '0');
+            }
+        }
+    });
+
+    $(window).resize(function() {
+        if (stickySidebar.length > 0) {
+            stickyHeight = stickySidebar.height();
+        }
+    });
+    </script>
+</body>
+
 </html>

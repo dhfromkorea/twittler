@@ -69,72 +69,85 @@
 
     <aside class="sticky">
         <img class="img-med" src="http://www.dhfromkorea.com/images/dh_profile.jpg" alt="profile img">
-        <h1 id="username">@username</h1>
+        <h1 id="username">home</h1>
         <p id="profile_desc">description</p>
     </aside>
 
     <script>
     $(document).ready(function() {
-        var $timeline = $('.timeline');
-        $timeline.html('');
-        var index = 0;
-        home_tweets();
-
-        function home_tweets() {
-            setInterval(function() {
-                var new_tweets = new_block(index++, "home");
-                display_tweets(new_tweets);
-            }, 5000);
+        var $username = getParameterByName('username')
+        console.log($username);
+        if ($username.length === 0) home_tweets();
+        if ($username.length > 0) {
+            user_tweets($username);
+            $('#username').text('@' + $username);
         }
-
-        function user_tweets(username) {
-            setInterval(function(username) {
-                var new_tweets = new_block(index++, username);
-                display_tweets(new_tweets);
-            }, 5000);
-        }
-
-        function new_block(i, mode) {
-            var j = (i + 1) * 10;
-            if (mode === "home") {
-                return streams.home.slice(j - 10, j);
-            } else {
-                var username = mode;
-                return streams.users[username].slice(j - 10, j);
-            }
-        }
-
-        function display_tweets(array) {
-            var index = array.length - 1;
-            while (index >= 0) {
-                var tweet = array[index];
-                var $tweet = $('<div></div>');
-                var $user = tweet.user
-                $tweet.html('<a href=?username=' + $user + " class='username'" + '>' + '@' + tweet.user + '</a>' + ' created at:' + tweet.created_at + '<br>' + tweet.message);
-                $tweet.appendTo($timeline);
-                index -= 1;
-            }
-        }
-
-        function getParameterByName(name) {
-            name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-            var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-                results = regex.exec(location.search);
-            return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-        }
-        // $('.dragon').on('click', function() {
-        //     alert('dragon');
-        // })
-        $(document).on('click', '.username', function() {
-            event.preventDefault();
-            alert("hi");
-            var username = getParameterByName('username');
-            alert(username);
-            user_tweets(username);
-        })
-
     });
+
+    // $(document).on('click', '.username', function() {
+    //     // event.preventDefault();
+    //     var username = $(this).text().slice(1, this.length);
+    //     console.log('so far');
+    //     console.log(username);
+    //     user_tweets(username);
+    //     // console.log(username);
+    // })
+
+    var $timeline = $('.timeline');
+    $timeline.html('');
+    var index = 0;
+
+    function new_block(i, mode) {
+        var j = (i + 2) * 10;
+        var k = (i + 2) * 3;
+        if (mode === "home") {
+            return streams.home.slice(j - 10, j);
+        } else {
+            var username = mode;
+            return streams.users[username].slice(k - 3, k);
+        }
+    }
+
+    function home_tweets() {
+        // $timeline.html('');
+        display_tweets(streams.home.slice(0, 10));
+        setInterval(function() {
+            var new_tweets = new_block(index++, "home");
+            display_tweets(new_tweets);
+        }, 5000);
+    }
+
+    function user_tweets(username) {
+        // $timeline.html('');
+        display_tweets(streams.users[username].slice(0, 3));
+        setInterval(function() {
+            console.log('user tweeting...')
+            var new_tweets = new_block(index++, username);
+            display_tweets(new_tweets);
+        }, 15000);
+    }
+
+    function display_tweets(array) {
+        var index = array.length - 1;
+        while (index >= 0) {
+            var tweet = array[index];
+            var $tweet = $('<div></div>');
+            var $user = tweet.user
+            // console.log(moment(tweet.created_at));
+            $tweet.html("<a href=?username=" + $user + " class='username'" + '>' + '@' + $user + '</a>' + ' created at:' + tweet.created_at + '<br>' + tweet.message);
+            $tweet.appendTo($timeline);
+            index -= 1;
+        }
+    }
+
+    function getParameterByName(name) {
+        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+            results = regex.exec(location.search);
+        return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+    }
     </script>
+
     <script>
     var stickySidebar = $('.sticky');
 
@@ -170,6 +183,13 @@
         }
     });
     </script>
+
+    <!-- script src="bower_components/momentjs/moment.js"></script -->
+    <!-- script>
+    moment().format();
+    </script -->
+
+
 </body>
 
 </html>
